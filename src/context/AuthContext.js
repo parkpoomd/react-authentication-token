@@ -55,46 +55,45 @@ export const AuthProvider = ({children}) => {
     }
   };
 
-  const updateToken = async () => {
-    console.log('Update token called!');
-    const response = await fetch('http://localhost:4000/api/token/refresh', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({refresh: authTokens?.refresh}),
-    });
+  // const updateToken = async () => {
+  //   console.log('Update token called!');
+  //   const response = await fetch('http://localhost:4000/api/token/refresh', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({refresh: authTokens?.refresh}),
+  //   });
 
-    const data = await response.json();
+  //   const data = await response.json();
 
-    if (response.status === 200) {
-      setAuthTokens(data);
-      setUser(jwt_decode(data.access));
-      localStorage.setItem('authTokens', JSON.stringify(data));
-    } else {
-      logoutUser();
-    }
+  //   if (response.status === 200) {
+  //     setAuthTokens(data);
+  //     setUser(jwt_decode(data.access));
+  //     localStorage.setItem('authTokens', JSON.stringify(data));
+  //   } else {
+  //     logoutUser();
+  //   }
 
-    if (loading) {
-      setLoading(false);
-    }
+  //   if (loading) {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const contextData = {
+    authTokens,
+    user,
+    loginUser,
+    logoutUser,
+    setUser,
+    setAuthTokens,
   };
 
-  const contextData = {authTokens, user, loginUser, logoutUser};
-
   useEffect(() => {
-    if (loading) {
-      updateToken();
+    if (authTokens) {
+      setUser(jwt_decode(authTokens.access));
     }
-
-    const fourMinutes = 1000 * 60 * 4;
-    const interval = setInterval(() => {
-      if (authTokens) {
-        updateToken();
-      }
-    }, fourMinutes);
-
-    return () => clearInterval(interval);
+    setLoading(false);
   }, [authTokens, loading]);
 
   return (
